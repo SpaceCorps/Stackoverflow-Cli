@@ -9,14 +9,13 @@ public sealed class ScrapeCommand : AsyncCommand<ScrapeCommand.Settings>
 {
     public sealed class Settings : GlobalSettings
     {
-        [CommandArgument(0, "<URL>")]
-        [Description("StackOverflow URL to scrape (question, tag page, or user profile)")]
-        public required string Url { get; init; }
+        [CommandArgument(0, "<TAGS>")]
+        [Description("Comma-separated StackOverflow tags to scrape (e.g. 'ai-agent,llm')")]
+        public required string Tags { get; init; }
 
-        [CommandOption("--max <N>")]
-        [Description("Maximum results to return")]
-        [DefaultValue(10)]
-        public int Max { get; init; } = 10;
+        [CommandOption("--answers")]
+        [Description("Include top answers for each question")]
+        public bool Answers { get; init; }
     }
 
     protected override async Task<int> ExecuteAsync(CommandContext context, Settings settings, CancellationToken cancellation)
@@ -26,8 +25,8 @@ public sealed class ScrapeCommand : AsyncCommand<ScrapeCommand.Settings>
         using var client = settings.CreateClient();
         var doc = await client.ScrapeAsync(new ScrapeInput
         {
-            StartUrls = [new { url = settings.Url }],
-            MaxResults = settings.Max
+            Tags = settings.Tags.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries),
+            IncludeAnswers = settings.Answers
         });
 
         YamlOutput.Write(doc);

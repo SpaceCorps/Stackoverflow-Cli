@@ -28,13 +28,13 @@ public sealed class ApifyClient : IDisposable
 
     public async Task<JsonDocument> SearchAsync(SearchInput input)
     {
-        var endpoint = $"acts/yin~stackoverflow-scraper/run-sync-get-dataset-items?token={_token}";
+        var endpoint = $"acts/sheshinmcfly~stackoverflow-scraper/run-sync-get-dataset-items?token={_token}";
         return await PostAndReadAsync(endpoint, input);
     }
 
     public async Task<JsonDocument> ScrapeAsync(ScrapeInput input)
     {
-        var endpoint = $"acts/yin~stackoverflow-scraper/run-sync-get-dataset-items?token={_token}";
+        var endpoint = $"acts/sheshinmcfly~stackoverflow-scraper/run-sync-get-dataset-items?token={_token}";
         return await PostAndReadAsync(endpoint, input);
     }
 
@@ -57,14 +57,18 @@ public sealed class ApifyClient : IDisposable
 
 public sealed class SearchInput
 {
-    public string[]? SearchTerms { get; init; }
-    public int MaxResults { get; init; } = 10;
-    public string? Sort { get; init; }
-    public string? Tagged { get; init; }
+    public string? Keywords { get; init; }
+    public string[]? Tags { get; init; }
+    public string? Site { get; init; } = "stackoverflow";
+    public bool IncludeAnswers { get; init; }
+    public string? Mode { get; init; } = "search";
 }
 
 public sealed class ScrapeInput
 {
-    public required object[] StartUrls { get; init; }
-    public int MaxResults { get; init; } = 10;
+    public string? Keywords { get; init; }
+    public string[]? Tags { get; init; }
+    public string? Site { get; init; } = "stackoverflow";
+    public bool IncludeAnswers { get; init; } = true;
+    public string? Mode { get; init; } = "tags";
 }
