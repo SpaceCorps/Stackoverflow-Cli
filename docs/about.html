@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About · Stackoverflow CLI</title>
+  <meta name="description" content="About Stackoverflow CLI: An open source native Rust command-line tool and agent interface for searching and scraping StackOverflow via Apify.">
+  <link rel="canonical" href="https://spacecorps.github.io/Stackoverflow-Cli/about.html">
+  <meta property="og:title" content="About · Stackoverflow CLI">
+  <meta property="og:description" content="About Stackoverflow CLI: An open source native Rust command-line tool and agent interface for searching and scraping StackOverflow via Apify.">
+  <meta property="og:url" content="https://spacecorps.github.io/Stackoverflow-Cli/about.html">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="https://spacecorps.github.io/Stackoverflow-Cli/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="is-agentic-site-type" content="content">
+  <style>
+    body { background: #090d16; color: #f1f5f9; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; line-height: 1.7; padding: 40px 20px; }
+    .content-box { max-width: 800px; margin: 0 auto; background: rgba(22, 27, 46, 0.7); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 40px; }
+    h1 { font-size: 2.2rem; margin-bottom: 20px; color: #fff; }
+    h2 { font-size: 1.4rem; margin-top: 30px; margin-bottom: 12px; color: #f48024; }
+    p { margin-bottom: 16px; color: #94a3b8; }
+    a { color: #f48024; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .back { display: inline-block; margin-bottom: 24px; color: #6366f1; font-weight: 500; }
+  </style>
+</head>
+<body>
+  <div class="content-box">
+    <a href="./" class="back">&larr; Back to Stackoverflow CLI</a>
+    <h1>About Stackoverflow CLI</h1>
+    
+    <p>Stackoverflow CLI is a high-performance, open-source command-line tool and programmatic automation interface designed specifically for searching and scraping StackOverflow questions and answers via Apify. Maintained under the SpaceCorps open-source engineering collective, the project provides developers and autonomous AI agents with a single, standalone binary capable of operating seamlessly across macOS, Linux, and Windows without runtime dependencies or managed framework overhead.</p>
+
+    <h2>Project Mission & Origins</h2>
+    <p>Modern agentic workflows and developer pipelines require fast feedback loops, reliable scraping, and secure credential handling. The original prototype CLI was implemented as a .NET global tool named <code>Stackoverflow.Console</code> by Niels Bosma. In 2026, the CLI was completely re-architected in Rust 2024 to achieve native speed, cold-starts in 1 to 3 milliseconds, zero runtime dependencies, and comprehensive OS keystore integration.</p>
+
+    <h2>Architectural Principles</h2>
+    <p>Stackoverflow CLI is built around three core tenets: security, determinism, and speed. API tokens are managed securely through host operating system vaults—such as macOS Keychain Services via the native security subsystem, Windows DPAPI encrypted under user credentials, or the freedesktop.org Secret Service daemon via libsecret on Linux. Output is structured as clean YAML for human and agent terminal readability, with instant JSON switching via <code>--json</code> for programmatic pipelines.</p>
+
+    <h2>Specification & Compatibility</h2>
+    <p>Every command and flag preserves full compatibility with Niels Bosma's original CLI while adding multi-account management (<code>stackoverflow accounts</code>), browser-assisted login (<code>stackoverflow login</code>), and self-documenting agent capabilities (<code>stackoverflow agent-readme</code>).</p>
+  </div>
+</body>
+</html>

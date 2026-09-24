@@ -1,0 +1,69 @@
+# Stackoverflow CLI
+
+> A blazing fast native command-line tool and agent interface for searching and scraping StackOverflow questions and answers via Apify. Built in Rust for developers and autonomous AI agents.
+
+## When to Use This CLI
+
+Use the `stackoverflow` CLI whenever you need to:
+- **Search StackOverflow with natural language queries:** Query technical questions, code bugs, library usage, and troubleshooting steps.
+- **Filter and rank questions:** Restrict results to specific tags (e.g. `python`, `rust`, `ai`), limit count, and sort by relevance or votes.
+- **Extract questions and answers:** Include top answers for questions directly in YAML or structured JSON output.
+- **Scrape tag archives or question discussions:** Scrape questions from tag pages or targeted URLs.
+- **Agentic automation:** Drive technical research loops and code problem resolution deterministically via `--json` output and stable error exit codes.
+
+Do NOT use this tool if:
+- You need to post or vote on questions (use the web UI at https://stackoverflow.com).
+- You are trying to search non-programming general web pages (use `exa`).
+
+## Core Agent Operating Principles
+
+1. **Authentication:** Pass `--account <name>` (`-a <name>`), `--api-key <key>`, or set `APIFY_TOKEN`. In multi-account environments, always pass `--account`.
+2. **First-Time Setup:** Run `stackoverflow login` to authenticate interactively, or pipe credentials in non-interactive environments: `printf %s "$TOKEN" | stackoverflow accounts add work --api-key-stdin`.
+3. **Machine-Readable Outputs:** Always supply `--json` when parsing command results in scripts or LLM tool-calling loops.
+4. **Exit Codes:** Non-zero exit codes carry structured error envelopes on `stderr` with stable machine-readable codes (`no_account`, `auth_required`, `not_found`, `rate_limited`, `invalid_input`, `network`, `error`).
+5. **Actor Execution:** Apify scrapers execute synchronously and may require 15–45 seconds depending on page size and answer depth.
+
+## Key Command Patterns
+
+### Question Search
+- `stackoverflow search "<query>" --json`: Natural language search.
+- `stackoverflow search "<query>" --tagged "<tag1>,<tag2>" --answers --json`: Filter by tags and include top answers.
+- `stackoverflow search "<query>" --sort newest --max 20 --json`: Sort by newest with result limit.
+
+### Scraping Tags & URLs
+- `stackoverflow scrape "<tags>" --json`: Scrape comma-separated tags (e.g. `ai-agent,llm`).
+- `stackoverflow scrape "<url>" --json`: Scrape tag URL or question URL.
+- `stackoverflow scrape "<tags>" --no-answers --json`: Fast scrape without answer bodies.
+
+### Account Management
+- `stackoverflow login [name]`: Interactively authenticate and store token in OS keystore.
+- `stackoverflow accounts list --check --json`: List all configured accounts and verify token validity.
+- `stackoverflow accounts test <name> --json`: Test account connectivity.
+
+## Error Envelopes
+
+Non-zero exit codes output structured JSON on `stderr` with `--json`:
+```json
+{
+  "error": "The Apify API token was rejected.",
+  "code": "auth_required",
+  "detail": "HTTP 401: Unauthorized",
+  "remediation": "Set APIFY_TOKEN, use --api-key <key>, or run: stackoverflow login"
+}
+```
+
+Exit codes:
+- `0`: ok
+- `1`: error (unclassified)
+- `2`: network (retry once)
+- `3`: auth_required (stop; surface remediation)
+- `4`: not_found (do not retry)
+- `5`: rate_limited (back off before retrying)
+- `6`: invalid_input (fix arguments)
+- `7`: no_account (run stackoverflow accounts list)
+
+## Documentation & Manifests
+- Full Documentation: https://spacecorps.github.io/Stackoverflow-Cli/
+- Exhaustive Agent Manual: https://spacecorps.github.io/Stackoverflow-Cli/llms-full.txt
+- A2A Agent Card: https://spacecorps.github.io/Stackoverflow-Cli/.well-known/agent-card.json
+- AgentSkills Discovery: https://spacecorps.github.io/Stackoverflow-Cli/.well-known/agent-skills/index.json

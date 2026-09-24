@@ -1,0 +1,17 @@
+{
+  "name": "Stackoverflow CLI Agent",
+  "description": "Agent interface for searching and scraping StackOverflow questions and answers via Apify.",
+  "url": "https://spacecorps.github.io/Stackoverflow-Cli/",
+  "version": "1.0.0",
+  "capabilities": ["search", "scraping", "tag-filter", "answers"],
+  "skills": [
+    {
+      "name": "stackoverflow-cli",
+      "url": "https://spacecorps.github.io/Stackoverflow-Cli/llms.txt"
+    }
+  ],
+  "contact": {
+    "email": "contact@spacecorps.dev",
+    "url": "https://spacecorps.github.io/Stackoverflow-Cli/contact.html"
+  }
+}

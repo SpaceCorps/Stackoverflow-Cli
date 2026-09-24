@@ -1,0 +1,155 @@
+# Stackoverflow CLI — Exhaustive Agent Operating Manual
+
+This document provides complete, unabridged reference material for autonomous LLM agents and automation scripts driving the `stackoverflow` command-line tool.
+
+---
+
+## 1. Invocation Principles
+
+- **Binary Name:** `stackoverflow`
+- **Output Formats:**
+  - Standard output is formatted in readable YAML by default.
+  - Supplying the global `--json` flag changes all output on `stdout` and `stderr` to structured JSON.
+  - Warnings and interactive prompts are emitted to `stderr` exclusively, ensuring `stdout` contains only valid, parseable payloads.
+- **Exit Codes:**
+  - `0`: Success (`ok`)
+  - `1`: Unclassified runtime failure (`error`)
+  - `2`: Network timeout or connection drop (`network`) — retry once with exponential backoff
+  - `3`: Authentication failure or key rejection (`auth_required`) — stop immediately and surface remediation to the human operator
+  - `4`: Requested resource or entity missing (`not_found`) — do not retry
+  - `5`: API rate limit exceeded (`rate_limited`) — back off before retrying
+  - `6`: Invalid argument combination or schema validation error (`invalid_input`) — correct invocation arguments
+  - `7`: No account or API key available (`no_account`) — configure an account or provide credentials
+
+---
+
+## 2. Authentication & Multi-Account Resolution
+
+Credentials can be passed via:
+1. `--account <name>` (short `-a <name>`): Looks up the specified account in `config.yaml` and decrypts the API token from the host OS keystore.
+2. `--api-key <key>`: Explicit API token supplied on the command line.
+3. `APIFY_TOKEN`: Environment variable holding the Apify API token.
+
+When multiple accounts are configured, explicitly pass `--account <name>` to prevent ambiguous or accidental operations.
+
+### Keystore Integration
+- **macOS:** `/usr/bin/security` (macOS Keychain)
+- **Windows:** DPAPI (Data Protection API via `windows-sys`)
+- **Linux:** `secret-tool` (freedesktop.org Secret Service / GNOME Keyring / KWallet)
+- **Plaintext Fallback:** Enabled only when `STACKOVERFLOW_ALLOW_PLAINTEXT_STORE=1` or `ALLOW_PLAINTEXT_STORE=1` is set.
+
+---
+
+## 3. Command Reference
+
+### `stackoverflow search`
+Search StackOverflow for questions matching a natural language query.
+
+```bash
+stackoverflow search <QUERY> [OPTIONS]
+```
+
+**Arguments:**
+- `<QUERY>`: Search keywords or query string (required).
+
+**Options:**
+- `--tagged <TAGS>`: Comma-separated tag filter (e.g. `python,machine-learning`).
+- `--answers`: Include top answers for each question (boolean flag).
+- `--site <SITE>`: Stack Exchange site (default: `stackoverflow`).
+- `--max <COUNT>`: Maximum number of questions to return.
+- `--sort <SORT>`: Sort order (`relevance`, `newest`, `votes`, `activity`).
+- `--account <ACCOUNT>` / `-a <ACCOUNT>`: Account name to resolve from keystore.
+- `--api-key <KEY>`: Direct Apify API token.
+- `--json`: Format output as JSON.
+
+**Examples:**
+```bash
+stackoverflow search "Rust memory leaks" --answers --json
+stackoverflow search "kubernetes ingress ssl" --tagged "kubernetes,ssl" --sort newest --max 15
+```
+
+### `stackoverflow scrape`
+Scrape questions from StackOverflow tags or a targeted URL.
+
+```bash
+stackoverflow scrape <TARGET> [OPTIONS]
+```
+
+**Arguments:**
+- `<TARGET>`: Comma-separated tags (e.g. `ai-agent,llm`), tag page URL (`https://stackoverflow.com/questions/tagged/ai-agent`), or question URL.
+
+**Options:**
+- `--answers`: Include top answers for each question (default: true).
+- `--no-answers`: Fast scrape without answer bodies.
+- `--site <SITE>`: Stack Exchange site (default: `stackoverflow`).
+- `--max <COUNT>`: Maximum number of questions to return.
+- `--sort <SORT>`: Sort order (`newest`, `votes`, `activity`).
+- `--account <ACCOUNT>` / `-a <ACCOUNT>`: Account name to resolve from keystore.
+- `--api-key <KEY>`: Direct Apify API token.
+- `--json`: Format output as JSON.
+
+**Examples:**
+```bash
+stackoverflow scrape "ai-agent,llm" --max 20 --json
+stackoverflow scrape "https://stackoverflow.com/questions/tagged/rust+wasm" --no-answers
+stackoverflow scrape "https://stackoverflow.com/questions/12345678/some-question"
+```
+
+### `stackoverflow login`
+Authenticate interactively with an Apify API token and store credentials in the OS keystore.
+
+```bash
+stackoverflow login [NAME] [OPTIONS]
+```
+
+**Arguments:**
+- `[NAME]`: Account name to save (default: `default`).
+
+**Options:**
+- `--api-key <KEY>`: Direct token (avoids prompt).
+- `--api-key-stdin`: Read token from standard input.
+- `--no-browser`: Do not open the Apify console in the browser.
+- `--force`: Overwrite existing account with new key.
+- `--no-verify`: Skip verification call to the Apify API.
+
+### `stackoverflow accounts`
+Manage configured accounts and stored credentials.
+
+```bash
+# Add an account
+stackoverflow accounts add <NAME> [--api-key <KEY>] [--api-key-stdin] [--force] [--no-verify]
+
+# List configured accounts and test validity
+stackoverflow accounts list [--check]
+
+# Test connectivity for a stored account
+stackoverflow accounts test <NAME>
+
+# Remove an account
+stackoverflow accounts remove <NAME> [--yes]
+```
+
+### `stackoverflow agent-readme`
+Prints the self-documenting operating manual for agents.
+
+```bash
+stackoverflow agent-readme         # Prints Markdown manual
+stackoverflow agent-readme --json  # Prints structured JSON rules and exit codes
+```
+
+---
+
+## 4. Error Envelopes & Remediation
+
+When a command fails, `stackoverflow` writes a structured JSON envelope to `stderr` when `--json` is active:
+
+```json
+{
+  "error": "The Apify API token was rejected.",
+  "code": "auth_required",
+  "detail": "HTTP 401: Unauthorized",
+  "remediation": "Set APIFY_TOKEN, use --api-key <key>, or run: stackoverflow login"
+}
+```
+
+Agents must branch on `code` and surface `remediation` directly to operators when `auth_required` or `no_account` is encountered.

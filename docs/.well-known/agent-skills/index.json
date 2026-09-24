@@ -1,0 +1,11 @@
+{
+  "$schema": "https://schemas.agentskills.io/discovery/0.2.0/schema.json",
+  "skills": [
+    {
+      "name": "stackoverflow-cli",
+      "description": "Search StackOverflow questions by keyword or tag, scrape discussions, and extract answers via the Apify scraper actor.",
+      "type": "skill-md",
+      "url": "https://spacecorps.github.io/Stackoverflow-Cli/llms.txt"
+    }
+  ]
+}

@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stackoverflow CLI | Fast Native Rust CLI for StackOverflow Search & Scraping</title>
+  <meta name="description" content="A blazing fast native command-line tool and agent interface for searching and scraping StackOverflow questions and answers via Apify, written in Rust. YAML-first output optimized for LLM agents.">
+  <link rel="canonical" href="https://spacecorps.github.io/Stackoverflow-Cli/">
+  <meta name="is-agentic-site-type" content="content">
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+  <meta name="keywords" content="Stackoverflow, StackOverflow CLI, Apify, Rust, web scraping, search, questions, answers, AI agents, LLM tool, terminal">
+  <meta name="author" content="SpaceCorps">
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://spacecorps.github.io/Stackoverflow-Cli/">
+  <meta property="og:title" content="Stackoverflow CLI | Fast Native Rust CLI for StackOverflow Search & Scraping">
+  <meta property="og:description" content="A blazing fast native command-line tool and agent interface for searching and scraping StackOverflow questions and answers via Apify, written in Rust.">
+  <meta property="og:image" content="https://spacecorps.github.io/Stackoverflow-Cli/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Stackoverflow CLI — Native Rust Command Line Tool">
+  <meta property="og:site_name" content="Stackoverflow CLI">
+  <meta property="og:locale" content="en_US">
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:url" content="https://spacecorps.github.io/Stackoverflow-Cli/">
+  <meta name="twitter:title" content="Stackoverflow CLI | Fast Native Rust CLI for StackOverflow Search & Scraping">
+  <meta name="twitter:description" content="A blazing fast native command-line tool and agent interface for searching and scraping StackOverflow questions and answers via Apify, written in Rust.">
+  <meta name="twitter:image" content="https://spacecorps.github.io/Stackoverflow-Cli/og-image.png">
+
+  <!-- AI Agents & Discovery -->
+  <link rel="alternate" type="text/markdown" href="https://spacecorps.github.io/Stackoverflow-Cli/index.md" title="Markdown Homepage">
+  <link rel="alternate" type="text/markdown" href="https://spacecorps.github.io/Stackoverflow-Cli/llms.txt" title="LLMs.txt">
+  <link rel="sitemap" type="application/xml" href="https://spacecorps.github.io/Stackoverflow-Cli/sitemap.xml" title="Sitemap">
+  <script>
+    if (new URLSearchParams(window.location.search).get('mode') === 'agent') {
+      window.location.href = 'llms.txt';
+    }
+  </script>
+
+  <!-- Favicon -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🥞</text></svg>">
+
+  <!-- JSON-LD Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "SoftwareApplication",
+        "name": "Stackoverflow CLI",
+        "applicationCategory": "DeveloperApplication",
+        "operatingSystem": "macOS, Linux, Windows",
+        "url": "https://spacecorps.github.io/Stackoverflow-Cli/",
+        "description": "A blazing fast native command-line tool and agent interface for searching and scraping StackOverflow questions and answers via Apify, written in Rust.",
+        "softwareVersion": "1.0.0",
+        "downloadUrl": "https://github.com/SpaceCorps/Stackoverflow-Cli/releases/tag/v1.0.0",
+        "license": "https://opensource.org/licenses/MIT",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        },
+        "author": {
+          "@type": "Organization",
+          "name": "SpaceCorps",
+          "url": "https://github.com/SpaceCorps"
+        }
+      },
+      {
+        "@type": "Organization",
+        "name": "SpaceCorps",
+        "url": "https://github.com/SpaceCorps",
+        "sameAs": [
+          "https://github.com/SpaceCorps/Stackoverflow-Cli",
+          "https://github.com/SpaceCorps"
+        ],
+        "contactPoint": {
+          "@type": "ContactPoint",
+          "contactType": "technical support",
+          "url": "https://github.com/SpaceCorps/Stackoverflow-Cli/issues"
+        },
+        "address": {
+          "@type": "PostalAddress",
+          "addressCountry": "US"
+        }
+      }
+    ]
+  }
+  </script>
+
+  <style>
+    :root {
+      --bg: #090d16;
+      --bg-card: rgba(22, 27, 46, 0.7);
+      --bg-card-hover: rgba(30, 38, 66, 0.85);
+      --border: rgba(255, 255, 255, 0.1);
+      --border-accent: rgba(244, 128, 36, 0.4);
+      --text: #f1f5f9;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+      --primary: #f48024;
+      --primary-hover: #fa9c4c;
+      --secondary: #6366f1;
+      --radius: 12px;
+      --radius-sm: 8px;
+      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --code-bg: #0d1117;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: var(--font-sans);
+      line-height: 1.6;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .container {
+      max-width: 1140px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    header {
+      padding: 24px 0;
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(12px);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(9, 13, 22, 0.85);
+    }
+    .header-inner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 1.25rem;
+      color: #fff;
+      text-decoration: none;
+    }
+    .logo-badge {
+      font-size: 0.75rem;
+      background: var(--primary);
+      color: #fff;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-weight: 600;
+    }
+    nav {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    nav a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.95rem;
+      transition: color 0.2s;
+    }
+    nav a:hover {
+      color: #fff;
+    }
+
+    .hero {
+      padding: 90px 0 60px;
+      text-align: center;
+      position: relative;
+    }
+    .hero::before {
+      content: "";
+      position: absolute;
+      top: 20%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 600px;
+      height: 350px;
+      background: radial-gradient(circle, rgba(244, 128, 36, 0.15) 0%, rgba(99, 102, 241, 0.05) 60%, transparent 100%);
+      pointer-events: none;
+      z-index: -1;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(244, 128, 36, 0.15);
+      border: 1px solid var(--border-accent);
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      color: #fca253;
+      margin-bottom: 24px;
+    }
+    h1 {
+      font-size: 3.2rem;
+      font-weight: 800;
+      line-height: 1.15;
+      letter-spacing: -0.03em;
+      margin-bottom: 20px;
+      background: linear-gradient(180deg, #ffffff 0%, #cbd5e1 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .hero p {
+      font-size: 1.25rem;
+      color: var(--text-muted);
+      max-width: 720px;
+      margin: 0 auto 36px;
+    }
+
+    .install-box {
+      max-width: 600px;
+      margin: 0 auto 48px;
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 18px;
+      font-family: var(--font-mono);
+      font-size: 0.95rem;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+    }
+    .install-cmd {
+      color: #38bdf8;
+      overflow-x: auto;
+      white-space: nowrap;
+    }
+    .copy-btn {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #fff;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      flex-shrink: 0;
+      margin-left: 12px;
+    }
+    .copy-btn:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+    .copy-btn.copied {
+      background: #10b981;
+      border-color: #10b981;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 24px;
+      margin-bottom: 80px;
+    }
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      transition: all 0.25s ease;
+      backdrop-filter: blur(8px);
+    }
+    .card:hover {
+      background: var(--bg-card-hover);
+      border-color: var(--border-accent);
+      transform: translateY(-2px);
+    }
+    .card-icon {
+      font-size: 1.8rem;
+      margin-bottom: 16px;
+    }
+    .card h3 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+      color: #fff;
+    }
+    .card p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+
+    .section-title {
+      font-size: 2.2rem;
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 12px;
+      color: #fff;
+    }
+    .section-desc {
+      text-align: center;
+      color: var(--text-muted);
+      margin-bottom: 48px;
+      font-size: 1.1rem;
+      max-width: 640px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .tabs {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+    .tab-btn {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 8px 18px;
+      border-radius: 999px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+    .tab-btn:hover {
+      color: #fff;
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+    .tab-btn.active {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+    .tab-content {
+      display: none;
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 80px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    }
+    .tab-content.active {
+      display: block;
+    }
+    .tab-content pre {
+      font-family: var(--font-mono);
+      font-size: 0.9rem;
+      color: #f1f5f9;
+      line-height: 1.6;
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 80px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    th, td {
+      padding: 16px 20px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.95rem;
+    }
+    th {
+      background: rgba(255, 255, 255, 0.03);
+      color: #fff;
+      font-weight: 600;
+    }
+    td code {
+      font-family: var(--font-mono);
+      color: #38bdf8;
+      background: rgba(56, 189, 248, 0.1);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.85rem;
+    }
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 48px 0;
+      text-align: center;
+      color: var(--text-dim);
+      font-size: 0.9rem;
+    }
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    .footer-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .footer-links a:hover {
+      color: #fff;
+    }
+
+    @media (max-width: 768px) {
+      h1 { font-size: 2.3rem; }
+      .hero { padding: 60px 0 40px; }
+      .install-box { flex-direction: column; gap: 12px; align-items: stretch; text-align: center; }
+      .copy-btn { margin-left: 0; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="container header-inner">
+      <a href="./" class="logo">
+        <span>🥞 Stackoverflow CLI</span>
+        <span class="logo-badge">Rust 2024</span>
+      </a>
+      <nav>
+        <a href="#features">Features</a>
+        <a href="#commands">Commands</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+        <a href="auth.md">Auth</a>
+        <a href="llms.txt">llms.txt</a>
+        <a href="https://github.com/SpaceCorps/Stackoverflow-Cli" target="_blank" rel="noopener noreferrer">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="hero">
+      <div class="badge">
+        <span>⚡ 1–3 ms Cold Starts</span>
+        <span>•</span>
+        <span>Zero Runtime Bloat</span>
+      </div>
+      <h1>StackOverflow Search & Scraping for LLM Agents</h1>
+      <p>A native Rust command-line tool and agent interface for searching questions, tags, and answers via Apify. YAML-first output optimized for LLM agents, with deterministic error envelopes and OS keystore security.</p>
+
+      <div class="install-box">
+        <span class="install-cmd">cargo install --git https://github.com/SpaceCorps/Stackoverflow-Cli --locked</span>
+        <button class="copy-btn" onclick="copyInstallCmd(this)">Copy</button>
+      </div>
+    </section>
+
+    <section id="features" class="grid-3">
+      <div class="card">
+        <div class="card-icon">🚀</div>
+        <h3>Native Rust Performance</h3>
+        <p>Compiled with Rust 2024 and full Link-Time Optimization (LTO). Executes in 1–3 ms without .NET runtime or VM overhead.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🤖</div>
+        <h3>Agentic-First Protocol</h3>
+        <p>Human-friendly YAML by default, raw JSON with <code>--json</code>. Deterministic error envelopes with stable exit codes (1..=7) on stderr.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🔐</div>
+        <h3>Native OS Keystores</h3>
+        <p>Tokens are secured in macOS Keychain (<code>/usr/bin/security</code>), Windows DPAPI, or Linux Secret Service. Never stored in plaintext without opt-in.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🔍</div>
+        <h3>Question & Tag Scraping</h3>
+        <p>Search StackOverflow questions by keyword or tag. Scrape tag archives or extract specific question discussions and top answers.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">👥</div>
+        <h3>Multi-Account Safety</h3>
+        <p>Isolated account profiles with explicit <code>--account &lt;name&gt;</code> targeting prevent credential mix-ups across projects or CI runners.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">📖</div>
+        <h3>Self-Documenting</h3>
+        <p>Embedded <code>stackoverflow agent-readme [--json]</code> exposes complete operating rules and exit codes with zero network roundtrips.</p>
+      </div>
+    </section>
+
+    <section id="commands">
+      <h2 class="section-title">Interactive Examples</h2>
+      <p class="section-desc">Try common workflows for searching, tag scraping, authentication, and multi-account management.</p>
+
+      <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('search')">Search Questions</button>
+        <button class="tab-btn" onclick="switchTab('scrape')">Scrape Tags & URLs</button>
+        <button class="tab-btn" onclick="switchTab('auth')">Auth & Accounts</button>
+        <button class="tab-btn" onclick="switchTab('agent')">Agent Protocol</button>
+      </div>
+
+      <div id="tab-search" class="tab-content active">
+<pre># Search StackOverflow by query
+stackoverflow search "AI coding agent orchestration"
+
+# Filter by tags and include top answers
+stackoverflow search "code review automation" --tagged "python,ai" --answers
+
+# Limit results and sort by newest
+stackoverflow search "multi-agent workflow" --sort newest --max 20
+
+# Structured JSON for agent pipelines
+stackoverflow search "memory leak debugging" --json</pre>
+      </div>
+
+      <div id="tab-scrape" class="tab-content">
+<pre># Scrape tag archives
+stackoverflow scrape "ai-agent,llm"
+
+# Scrape a specific tag page with limit
+stackoverflow scrape "https://stackoverflow.com/questions/tagged/ai-agent" --max 20
+
+# Scrape a specific question URL
+stackoverflow scrape "https://stackoverflow.com/questions/12345678/some-question"
+
+# Fast scrape without answer bodies
+stackoverflow scrape "rust" --no-answers</pre>
+      </div>
+
+      <div id="tab-auth" class="tab-content">
+<pre># Interactive login (opens Apify console, saves to OS keystore)
+stackoverflow login
+
+# Add named account via stdin (for CI / agent loops)
+printf %s "$APIFY_TOKEN" | stackoverflow accounts add work --api-key-stdin
+
+# List configured accounts and test validity
+stackoverflow accounts list --check
+
+# Test connectivity for a stored account
+stackoverflow accounts test work
+
+# Remove an account securely
+stackoverflow accounts remove work --yes</pre>
+      </div>
+
+      <div id="tab-agent" class="tab-content">
+<pre># Dump human-readable operating manual
+stackoverflow agent-readme
+
+# Dump structured JSON rules and exit codes
+stackoverflow agent-readme --json
+
+# Error envelope format on stderr:
+# {
+#   "error": "The Apify API token was rejected.",
+#   "code": "auth_required",
+#   "remediation": "Set APIFY_TOKEN, use --api-key <key>, or run: stackoverflow login"
+# }</pre>
+      </div>
+    </section>
+
+    <section>
+      <h2 class="section-title">Command Reference</h2>
+      <p class="section-desc">Summary of commands and subcommands available in the <code>stackoverflow</code> CLI.</p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Command</th>
+            <th>Description</th>
+            <th>Primary Flags</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>stackoverflow search &lt;QUERY&gt;</code></td>
+            <td>Search StackOverflow for questions matching a query</td>
+            <td><code>--tagged</code>, <code>--answers</code>, <code>--site</code>, <code>--max</code>, <code>--sort</code></td>
+          </tr>
+          <tr>
+            <td><code>stackoverflow scrape &lt;TARGET&gt;</code></td>
+            <td>Scrape tags, tagged URLs, or question URLs</td>
+            <td><code>--answers</code>, <code>--no-answers</code>, <code>--site</code>, <code>--max</code>, <code>--sort</code></td>
+          </tr>
+          <tr>
+            <td><code>stackoverflow login [NAME]</code></td>
+            <td>Authenticate with Apify API token via browser or flag</td>
+            <td><code>--api-key</code>, <code>--api-key-stdin</code>, <code>--no-browser</code>, <code>--force</code></td>
+          </tr>
+          <tr>
+            <td><code>stackoverflow accounts &lt;SUBCOMMAND&gt;</code></td>
+            <td>Manage named accounts and stored keystore credentials</td>
+            <td><code>add</code>, <code>list</code>, <code>test</code>, <code>remove</code></td>
+          </tr>
+          <tr>
+            <td><code>stackoverflow agent-readme</code></td>
+            <td>Print full agent instruction manual or JSON rules</td>
+            <td><code>--json</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div class="footer-links">
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+        <a href="privacy.html">Privacy Policy</a>
+        <a href="pricing.md">Pricing & License</a>
+        <a href="auth.md">Authentication</a>
+        <a href="llms.txt">llms.txt</a>
+        <a href="sitemap.xml">Sitemap</a>
+        <a href="https://github.com/SpaceCorps/Stackoverflow-Cli" target="_blank" rel="noopener noreferrer">GitHub</a>
+        <a href="https://apify.com" target="_blank" rel="noopener noreferrer">Apify</a>
+      </div>
+      <p>Stackoverflow CLI &bull; Maintained under SpaceCorps &bull; Licensed under MIT</p>
+    </div>
+  </footer>
+
+  <script>
+    function copyInstallCmd(btn) {
+      const cmd = "cargo install --git https://github.com/SpaceCorps/Stackoverflow-Cli --locked";
+      navigator.clipboard.writeText(cmd).then(() => {
+        btn.textContent = "Copied!";
+        btn.classList.add("copied");
+        setTimeout(() => {
+          btn.textContent = "Copy";
+          btn.classList.remove("copied");
+        }, 2000);
+      });
+    }
+
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+      
+      const activeContent = document.getElementById('tab-' + tabId);
+      if (activeContent) activeContent.classList.add('active');
+      
+      event.target.classList.add('active');
+    }
+  </script>
+</body>
+</html>
